@@ -60,7 +60,9 @@ source install/setup.bash
 ### 3.4. Hay perifericos que toca manejarlos con root
 Algunas partes del SDK de la placa Hiwonder usan rpi_ws281x y acceden a /dev/mem, por lo que el nodo de base debe correr como root.
 ```bash
-sudo ./run_turbopy_base_node_root.sh
+sudo -E bash
+
+ros2 run turbopy_base_driver turbopy_base_node
 ```
 
 ## 4. Pruebas locales de /cmd_vel y /battery
@@ -70,13 +72,19 @@ Con el nodo turbopy_base_driver corriendo en la Raspberry Pi (como root), abre o
 Ejemplo de comando para mandar una velocidad lineal hacia delante:
 ```bash
 ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist \
-"{linear: {x: 0.2, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}"
+"{linear: {x: 0.3, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}"
 ```
 
 O publicando de forma continua a 5 Hz:
 ```bash
 ros2 topic pub -r 5 /cmd_vel geometry_msgs/msg/Twist \
 "{linear: {x: 0.2, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}"
+```
+
+stop
+```bash
+ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist \
+"{linear: {x: 0.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}"
 ```
 
 ### 4.2. Leer /battery
