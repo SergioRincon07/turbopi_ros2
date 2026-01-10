@@ -24,6 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'turbopy_led_node = turbopy_led_driver.led_node:main',
         ],
     },
 )

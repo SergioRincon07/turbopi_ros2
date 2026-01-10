@@ -24,6 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'turbopy_buzzer_node = turbopy_buzzer_driver.buzzer_node:main',
         ],
     },
 )
