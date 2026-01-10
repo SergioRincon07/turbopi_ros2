@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Optional
 
-try:
-    import HiwonderSDK.Board as Board
-except ImportError:  # pragma: no cover - en desarrollo sin hardware
-    Board = None  # type: ignore
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import HiwonderSDK.Board as Board
 
 from .interfaces import (
     MotorDriverInterface,
