@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CycloneDDS xmlns="https://cdds.io/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Domain id="any">
+        <General>
+            <Interfaces>
+                <!-- Configuración adaptada para WSL2 -->
+                <!-- eth0 es la interfaz principal en WSL2 -->
+                <NetworkInterface name="wlan0" priority="default" multicast="default" />
+            </Interfaces>
+            
+            <!-- Configuración para comunicación entre dispositivos -->
+            <AllowMulticast>true</AllowMulticast>
+            <MaxMessageSize>65500B</MaxMessageSize>
+            <FragmentSize>4000B</FragmentSize>
+        </General>
+        
+        <Discovery>
+            <ParticipantIndex>auto</ParticipantIndex>
+            <MaxAutoParticipantIndex>100</MaxAutoParticipantIndex>
+            
+            <!-- Configuración de peers para descubrimiento manual (opcional) -->
+            <!-- Descomentar y configurar si el descubrimiento automático falla -->
+            <!--
+            <Peers>
+                <Peer address="192.168.1.100"/>
+            </Peers>
+            -->
+        </Discovery>
+        
+        <Tracing>
+            <!-- Nivel de verbosidad: none, severe, error, warning, info, config, fine, finer, finest -->
+            <!-- Para producción usar 'warning', para debugging usar 'info' -->
+            <Verbosity>warning</Verbosity>
+            <OutputFile>stdout</OutputFile>
+        </Tracing>
+    </Domain>
+</CycloneDDS>
