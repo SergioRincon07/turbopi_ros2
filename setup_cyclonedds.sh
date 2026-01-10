@@ -16,8 +16,9 @@ else
     DDS_FILE="cyclonedds_RasPI.xml"
 fi
 
-# Carpeta única de configuración
-CONFIG_DIR="$HOME/ros2_ws/ros2_ws_wsl2_RasPI/config"
+# Carpeta única de configuración (dentro del repo turbopi_ros2)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_DIR="$SCRIPT_DIR/config"
 CONFIG_FILE="$CONFIG_DIR/$DDS_FILE"
 
 # Exportar configuración CycloneDDS

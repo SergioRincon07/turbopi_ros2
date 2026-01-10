@@ -7,12 +7,14 @@ echo "  Diagnóstico de Comunicación ROS2"
 echo "=========================================="
 echo ""
 
-# 0. Setup_cyclonedds ROS2
-if [ -f "$HOME/ros2_ws/ros2_ws_wsl2_RasPI/setup_cyclonedds.sh" ]; then
-    source "$HOME/ros2_ws/ros2_ws_wsl2_RasPI/setup_cyclonedds.sh"
+# 0. Setup_cyclonedds ROS2 (desde este repo)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/setup_cyclonedds.sh" ]; then
+    # shellcheck disable=SC1090
+    source "$SCRIPT_DIR/setup_cyclonedds.sh"
     echo "   ✓ Configuración CycloneDDS cargada"
 else
-    echo "   ⚠️  No se encontró setup_cyclonedds.sh"
+    echo "   ⚠️  No se encontró setup_cyclonedds.sh en $SCRIPT_DIR"
 fi
 echo ""
 

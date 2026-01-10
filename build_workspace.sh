@@ -13,8 +13,37 @@ echo "  Construyendo Workspace ROS2"
 echo -e "==========================================${NC}"
 echo ""
 
-# Verificar que estamos en el directorio correcto
-WORKSPACE_DIR="$HOME/ros2_ws/ros2_ws_wsl2_RasPI"
+# Directorio del repo (turbopi_ros2)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$SCRIPT_DIR"
+
+ROS_WS_DIR="$REPO_DIR/turbopy_ros_ws"
+RP_WS_DIR="$REPO_DIR/turbopy_rp_ws"
+
+# Seleccionar workspace según ROS_DISTRO (jazzy -> PC, humble -> Raspberry Pi)
+case "${ROS_DISTRO:-}" in
+    jazzy)
+        WORKSPACE_DIR="$ROS_WS_DIR"
+        TARGET_NAME="turbopy_ros_ws (PC/Jazzy)"
+        ;;
+    humble)
+        WORKSPACE_DIR="$RP_WS_DIR"
+        TARGET_NAME="turbopy_rp_ws (Raspberry Pi/Humble)"
+        ;;
+    *)
+        # Fallback: si no hay ROS_DISTRO, priorizar turbopy_ros_ws si existe
+        if [ -d "$ROS_WS_DIR" ]; then
+            WORKSPACE_DIR="$ROS_WS_DIR"
+            TARGET_NAME="turbopy_ros_ws (por defecto)"
+        elif [ -d "$RP_WS_DIR" ]; then
+            WORKSPACE_DIR="$RP_WS_DIR"
+            TARGET_NAME="turbopy_rp_ws (por defecto)"
+        else
+            echo -e "${RED}✗ Error: No se encontraron workspaces turbopy_ros_ws ni turbopy_rp_ws en $REPO_DIR${NC}"
+            exit 1
+        fi
+        ;;
+esac
 
 if [ ! -d "$WORKSPACE_DIR" ]; then
     echo -e "${RED}✗ Error: Workspace no encontrado en $WORKSPACE_DIR${NC}"
@@ -23,11 +52,12 @@ fi
 
 cd "$WORKSPACE_DIR"
 echo -e "${GREEN}📁 Directorio de trabajo: $PWD${NC}"
+echo -e "${GREEN}📦 Workspace seleccionado: $TARGET_NAME (ROS_DISTRO=${ROS_DISTRO:-'no establecido'})${NC}"
 echo ""
 
 # Verificar que existe el directorio src
 if [ ! -d "src" ]; then
-    echo -e "${RED}✗ Error: No se encontró directorio 'src'${NC}"
+    echo -e "${RED}✗ Error: No se encontró directorio 'src' en $WORKSPACE_DIR${NC}"
     exit 1
 fi
 
@@ -44,8 +74,8 @@ if [[ $CLEAN_RESPONSE =~ ^[Yy]$ ]]; then
 fi
 
 # Compilar
-echo -e "${BLUE}🔨 Compilando paquetes...${NC}"
-colcon build --packages-select wsl_raspi_comm wsl_raspi_comm_msgs --symlink-install
+echo -e "${BLUE}🔨 Compilando paquetes con colcon...${NC}"
+colcon build --symlink-install
 
 # Verificar resultado
 if [ $? -eq 0 ]; then
