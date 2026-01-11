@@ -2,7 +2,7 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Bool
 
-from turbopy_hw import create_buzzer_driver
+from turbopy_hw import BuzzerDriver
 
 
 class BuzzerDriverNode(Node):
@@ -11,11 +11,8 @@ class BuzzerDriverNode(Node):
     def __init__(self) -> None:
         super().__init__('turbopy_buzzer_driver')
 
-        self.declare_parameter('board_type', 'hiwonder')
-        board_type = self.get_parameter('board_type').get_parameter_value().string_value
-
         try:
-            self._buzzer = create_buzzer_driver(board_type)
+            self._buzzer = BuzzerDriver()
         except Exception as exc:  # noqa: BLE001
             self.get_logger().error(f'No se pudo inicializar el driver de buzzer: {exc!r}')
             raise

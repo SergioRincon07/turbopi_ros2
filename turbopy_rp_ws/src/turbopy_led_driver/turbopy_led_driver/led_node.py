@@ -2,24 +2,17 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 
-from turbopy_hw import create_led_driver
+from turbopy_hw import LedDriver
 
 
 class LedDriverNode(Node):
-    """Nodo ROS2 que recibe comandos simples por /leds_cmd y controla los LEDs.
-
-    El tipo de placa se selecciona con el parámetro "board_type" (por ahora
-    solo 'hiwonder'). Esto permite cambiar de hardware sin tocar el nodo.
-    """
+    """Nodo ROS2 que recibe comandos simples por /leds_cmd y controla los LEDs."""
 
     def __init__(self) -> None:
         super().__init__('turbopy_led_driver')
 
-        self.declare_parameter('board_type', 'hiwonder')
-        board_type = self.get_parameter('board_type').get_parameter_value().string_value
-
         try:
-            self._led = create_led_driver(board_type)
+            self._led = LedDriver()
         except Exception as exc:  # noqa: BLE001
             self.get_logger().error(f'No se pudo inicializar el driver de LEDs: {exc!r}')
             raise

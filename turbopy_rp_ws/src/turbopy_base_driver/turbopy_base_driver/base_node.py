@@ -1,19 +1,16 @@
-import math
-from typing import Tuple
-
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import BatteryState
 
-from turbopy_hw import create_motor_driver, create_battery_interface
+from turbopy_hw import MotorDriver, BatteryMonitor
 
 
 class BaseDriverNode(Node):
     """Driver de base simple para TurboPi.
 
     - Suscribe a /cmd_vel (geometry_msgs/Twist).
-    - Controla los motores vía turbopy_hw (independiente de la placa).
+    - Controla los motores vía turbopy_hw.
     - Publica /battery (sensor_msgs/BatteryState).
 
     NOTA: La cinemática aquí es muy básica (todos los motores igual según
@@ -24,12 +21,9 @@ class BaseDriverNode(Node):
     def __init__(self) -> None:
         super().__init__('turbopy_base_driver')
 
-        self.declare_parameter('board_type', 'hiwonder')
-        board_type = self.get_parameter('board_type').get_parameter_value().string_value
-
         try:
-            self._motors = create_motor_driver(board_type)
-            self._battery = create_battery_interface(board_type)
+            self._motors = MotorDriver()
+            self._battery = BatteryMonitor()
         except Exception as exc:  # noqa: BLE001
             self.get_logger().error(f'No se pudo inicializar la capa de hardware: {exc!r}')
             raise

@@ -61,7 +61,7 @@ source install/setup.bash
 Algunas partes del SDK de la placa Hiwonder usan rpi_ws281x y acceden a /dev/mem, por lo que el nodo de base debe correr como root.
 ```bash
 sudo -E bash
-
+source install/setup.bash
 ros2 run turbopy_base_driver turbopy_base_node
 ```
 
