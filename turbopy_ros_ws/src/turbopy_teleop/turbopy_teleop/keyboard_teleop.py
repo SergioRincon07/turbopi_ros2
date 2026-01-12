@@ -40,7 +40,7 @@ class KeyboardTeleopNode(Node):
         # Estado de las teclas presionadas con timestamp
         self._keys_pressed = {}  # {key: timestamp}
         self._lock = threading.Lock()
-        self._key_timeout = 0.3  # Segundos antes de considerar la tecla "soltada"
+        self._key_timeout = 1  # Segundos antes de considerar la tecla "soltada"
 
         # Timer para publicar comandos continuamente
         self._publish_timer = self.create_timer(0.05, self._publish_cmd_vel)  # 20 Hz
@@ -76,7 +76,8 @@ class KeyboardTeleopNode(Node):
         try:
             tty.setraw(sys.stdin.fileno())
             while self._running and rclpy.ok():
-                if select.select([sys.stdin], [], [], 0.1)[0]:
+                # Leer con timeout más corto para ser más responsive
+                if select.select([sys.stdin], [], [], 0.05)[0]:
                     key = sys.stdin.read(1)
                     self._process_key(key)
         finally:
