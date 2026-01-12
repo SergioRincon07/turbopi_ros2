@@ -16,10 +16,84 @@ import sys
 # Add HiwonderSDK to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import HiwonderSDK.Board as Board
+from HiwonderSDK.Mecanum import MecanumChassis
+
+class ChachisMecanum:
+    """Wrapper para controlar el chassis Mecanum del TurboPi.
+    
+    Proporciona una interfaz simplificada que convierte velocidades normalizadas
+    [-1.0, 1.0] a velocidades físicas en mm/s que espera MecanumChassis.
+    
+    Soporta tanto coordenadas polares (velocidad + dirección + rotación)
+    como coordenadas cartesianas (velocity_x, velocity_y).
+    
+    Args:
+        max_speed: Velocidad máxima en mm/s (default: 100)
+    
+    Example:
+        >>> chassis = ChachisMecanum(max_speed=100)
+        >>> chassis.translation(0.5, 0.0)  # Mueve a la derecha al 50%
+        >>> chassis.set_velocity(50, 90, 0)  # 50mm/s hacia adelante (90°)
+    """
+
+    def __init__(self, max_speed: int = 100):
+        """Initialize mecanum chassis wrapper.
+        
+        Args:
+            max_speed: Velocidad máxima en mm/s (1-200 recomendado)
+        """
+        self.max_speed = max(1, int(max_speed))
+        try:
+            self._chassis = MecanumChassis()
+        except Exception as exc:  # noqa: BLE001
+            raise RuntimeError(f'No se pudo inicializar MecanumChassis: {exc!r}') from exc
+
+    def set_velocity(self, velocity, direction, angular_rate, fake=False):
+        """Control del chassis usando coordenadas polares.
+        
+        Args:
+            velocity: Velocidad normalizada [-1.0, 1.0] de traslación
+            direction: Dirección en grados (0-360°)
+                      0° = derecha, 90° = adelante, 180° = izquierda, 270° = atrás
+            angular_rate: Velocidad angular normalizada [-1.0, 1.0]
+                         Positivo = giro horario, Negativo = antihorario
+            fake: Si True, solo calcula sin enviar comandos al hardware
+        """
+        # Convertir velocidad normalizada a mm/s
+        velocity_mms = velocity * self.max_speed
+        
+        # Enviar comando al chassis de bajo nivel
+        self._chassis.set_velocity(velocity_mms, direction, angular_rate, fake)
+
+    def translation(self, velocity_x, velocity_y, fake=False):
+        """Control del chassis usando coordenadas cartesianas.
+        
+        Args:
+            velocity_x: Velocidad normalizada en X [-1.0, 1.0]
+                       Positivo = derecha, Negativo = izquierda
+            velocity_y: Velocidad normalizada en Y [-1.0, 1.0]
+                       Positivo = adelante, Negativo = atrás
+            fake: Si True, solo calcula sin enviar comandos al hardware
+        
+        Example:
+            >>> chassis.translation(0.0, 1.0)  # Adelante 100%
+            >>> chassis.translation(0.5, 0.5)  # Diagonal 45° adelante-derecha
+            >>> chassis.translation(-1.0, 0.0) # Lateral izquierda 100%
+        """
+        # Clamp velocities to valid range
+        velocity_x = max(-1.0, min(1.0, velocity_x))
+        velocity_y = max(-1.0, min(1.0, velocity_y))
+        
+        # Convert to hardware speed values (mm/s)
+        velocity_x_mms = velocity_x * self.max_speed
+        velocity_y_mms = velocity_y * self.max_speed
+
+        # Send command to hardware
+        self._chassis.translation(velocity_x_mms, velocity_y_mms, fake)
 
 
 class MotorDriver:
-    """Controls the 4 motors of the TurboPi robot.
+    """Control Indepedniente the 4 motors of the TurboPi robot.
     
     Uses HiwonderSDK.Board.setMotor() to control motor speeds.
     Speed values are normalized to [-1.0, 1.0] range.

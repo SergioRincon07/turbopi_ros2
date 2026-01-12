@@ -10,6 +10,7 @@ from .hardware import (
     LedDriver,
     BuzzerDriver,
     BatteryMonitor,
+    ChachisMecanum,
 )
 
 __all__ = [
@@ -17,4 +18,5 @@ __all__ = [
     'LedDriver',
     'BuzzerDriver',
     'BatteryMonitor',
+    'ChachisMecanum',
 ]
