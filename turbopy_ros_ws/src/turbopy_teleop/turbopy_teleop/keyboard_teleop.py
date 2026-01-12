@@ -5,7 +5,8 @@ Nodo de teleoperación con teclado para TurboPi usando teclas WASD.
 Controles:
   W/S - Adelante/Atrás (linear.y)
   A/D - Izquierda/Derecha lateral (linear.x) 
-  Q/E - Rotar izquierda/derecha (angular.z)
+  Q/E/Z/C - Movimientos diagonales
+  G/H - Rotar izquierda/derecha (angular.z)
   Espacio - Detener
   ESC - Salir
 
@@ -91,8 +92,27 @@ class KeyboardTeleopNode(Node):
             # Debug: mostrar qué tecla se detectó
             # print(f"\rTecla detectada: {repr(key)} ({ord(key)})", end='', flush=True)
             
+            """
+            W - Adelante
+            S - Atrás
+            A - Lateral izquierda
+            D - Lateral derecha
+            Q - Diagonal izquierda (Adelante)
+            E - Diagonal derecha (Adelante)
+            Z - Diagonal izquierda (Atrás)
+            C - Diagonal derecha (Atrás)
+            
+            g - Girar izquierda (antihorario)
+            h - Girar derecha (horario)
+
+            Espacio - Detener
+            ESC - Salir
+            +/- - Aumentar/Disminuir velocidad
+            
+            """     
+
             # Teclas de movimiento - añadir al conjunto de teclas presionadas
-            if key_lower in ['w', 's', 'a', 'd', 'q', 'e']:
+            if key_lower in ['w', 's', 'a', 'd', 'q', 'e', 'z', 'c', 'g', 'h']:
                 self._keys_pressed[key_lower] = time.time()
             
             # Teclas de control instantáneas
@@ -136,9 +156,14 @@ class KeyboardTeleopNode(Node):
         print("    S - Atrás")
         print("    A - Lateral izquierda")
         print("    D - Lateral derecha")
+        print("\n  Diagonal:")
+        print("    Q - Diagonal izquierda (Adelante)")
+        print("    E - Diagonal derecha (Adelante)")
+        print("    Z - Diagonal izquierda (Atrás)")
+        print("    C - Diagonal derecha (Atrás)")
         print("\n  Rotación:")
-        print("    Q - Girar izquierda (antihorario)")
-        print("    E - Girar derecha (horario)")
+        print("    G - Girar izquierda (antihorario)")
+        print("    H - Girar derecha (horario)")
         print("\n  NOTA: Presiona y mantén las teclas para movimiento continuo")
         print("\n  Control:")
         print("    ESPACIO - Detener")
@@ -201,10 +226,24 @@ class KeyboardTeleopNode(Node):
             if 'd' in self._keys_pressed:
                 twist.linear.x += self._current_linear_speed
 
+            # Movimientos diagonales (combinan X e Y)
+            if 'q' in self._keys_pressed:  # Diagonal izquierda adelante
+                twist.linear.y = self._current_linear_speed
+                twist.linear.x = -self._current_linear_speed
+            if 'e' in self._keys_pressed:  # Diagonal derecha adelante
+                twist.linear.y = self._current_linear_speed
+                twist.linear.x = self._current_linear_speed
+            if 'z' in self._keys_pressed:  # Diagonal izquierda atrás
+                twist.linear.y = -self._current_linear_speed
+                twist.linear.x = -self._current_linear_speed
+            if 'c' in self._keys_pressed:  # Diagonal derecha atrás
+                twist.linear.y = -self._current_linear_speed
+                twist.linear.x = self._current_linear_speed
+
             # Rotación (girar sobre su eje)
-            if 'q' in self._keys_pressed:
+            if 'g' in self._keys_pressed:
                 twist.angular.z = self._current_angular_speed
-            if 'e' in self._keys_pressed:
+            if 'h' in self._keys_pressed:
                 twist.angular.z -= self._current_angular_speed
 
             # Guardar estado actual
