@@ -24,6 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'keyboard_teleop = turbopy_teleop.keyboard_teleop:main',
         ],
     },
 )
